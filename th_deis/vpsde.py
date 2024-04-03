@@ -3,7 +3,6 @@ import jax.numpy as jnp
 import warnings
 from .sde import ExpSDE, MultiStepSDE
 from .helper import jax2th
-from jax._src.numpy.lax_numpy import _promote_dtypes_inexact
 
 
 def quad_root(a, b, c):
@@ -80,12 +79,11 @@ class VPSDE(ExpSDE, MultiStepSDE):
         coef = jnp.sqrt(self.alpha_start / self.t2alpha_fn(t))
         return th_v / jax2th(coef, th_v)
 
-def get_interp_fn(_xp, _fp):
+def get_interp_fn(xp, fp):
   @jax.jit
   def _fn(x):
-      if jnp.shape(_xp) != jnp.shape(_fp) or jnp.ndim(_xp) != 1:
+      if jnp.shape(xp) != jnp.shape(fp) or jnp.ndim(xp) != 1:
           raise ValueError("xp and fp must be one-dimensional arrays of equal size")
-      x, xp, fp = _promote_dtypes_inexact(x, _xp, _fp)
 
       i = jnp.clip(jnp.searchsorted(xp, x, side='right'), 1, len(xp) - 1)
       df = fp[i] - fp[i - 1]
