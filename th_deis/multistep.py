@@ -68,7 +68,6 @@ def get_ab_eps_coef_order0(sde, highest_order, timesteps):
     )(timesteps[:-1], timesteps[1:], vec_ts_poly)
 
 def get_ab_eps_coef(sde, highest_order, timesteps, order):
-    assert isinstance(sde, MultiStepSDE)
     if order == 0:
         return get_ab_eps_coef_order0(sde, highest_order, timesteps)
     
