@@ -31,7 +31,7 @@ def get_sampler_t_ab(sde, eps_fn, ts_phase, ts_order, num_step, ab_order):
     jax_ab_coef = jnp.concatenate([x_coef[:, None], eps_coef], axis=1)
     th_rev_ts, th_ab_coef = jax2th(jax_rev_ts), jax2th(jax_ab_coef)
 
-    def sampler(xT):
+    def sampler(xT, log_steps = []):
         rev_ts, ab_coef = th_rev_ts.to(xT.device), th_ab_coef.to(xT.device)
         xs = [xT.detach().cpu()]
         def ab_body_fn(i, val):
@@ -40,7 +40,8 @@ def get_sampler_t_ab(sde, eps_fn, ts_phase, ts_order, num_step, ab_order):
             
             new_eps = eps_fn(x, s_t)
             new_x, new_eps_pred = ab_step(x, ab_coef[i], new_eps, eps_pred)
-            xs.append(new_x.detach().cpu())
+            if round(s_t.item()) in log_steps:
+                xs.append(new_x.detach().cpu())
             return new_x, new_eps_pred
 
 
